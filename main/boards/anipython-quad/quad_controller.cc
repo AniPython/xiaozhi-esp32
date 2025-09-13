@@ -50,12 +50,12 @@ private:
 
                 switch (params.action_type) {
                     case ACTION_FORWALK:
-                        controller->quad_.Forward(2, 800);
+                        controller->quad_.Forward(8, 1000);
                         ESP_LOGI(TAG, "xQueueReceive FORWALK~~");
                         break;
 
                     case ACTION_BACKWALK:
-                        controller->quad_.Backward(2, 800);
+                        controller->quad_.Backward(4, 1000);
                         ESP_LOGI(TAG, "xQueueReceive Backward~~");
                         break;
                     
@@ -65,7 +65,7 @@ private:
                         break;
                 }
                 if (params.action_type != ACTION_HOME) {
-                    controller->quad_.Home();
+                     controller->quad_.Home();
                 }
                 controller->is_action_in_progress_ = false;
                 vTaskDelay(pdMS_TO_TICKS(20));
@@ -80,7 +80,7 @@ private:
         }
     }
 
-    void QueueAction(int action_type, int steps, int speed) {
+    void QueueAction(int action_type, int steps) {
 
         ESP_LOGI(TAG, "动作控制: 类型=%d, 步数=%d", action_type, steps);
 
@@ -96,7 +96,7 @@ public:
 
         action_queue_ = xQueueCreate(10, sizeof(QuadActionParams));
 
-        QueueAction(ACTION_HOME, 1, 1000);
+        QueueAction(ACTION_HOME, 1);
 
         RegisterMcpTools();
     }
@@ -112,6 +112,7 @@ public:
                            PropertyList(),
                            [this](const PropertyList& properties) -> ReturnValue {
                                QueueAction(ACTION_FORWALK, 2);
+                               // quad_.Forward(8, 800);
                                ESP_LOGI(TAG, "QueueAction(ACTION_FORWALK, 2);");
                                return true;
                            });

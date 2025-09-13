@@ -220,11 +220,13 @@ void Quad::Execute(int amplitude[SERVO_COUNT], int offset[SERVO_COUNT], int peri
 
     //-- Execute complete cycles
     if (cycles >= 1)
-        for (int i = 0; i < cycles; i++)
+        for (int i = 0; i < cycles; i++) {
             OscillateServos(amplitude, offset, period, phase_diff);
-
+            // ESP_LOGI("Quad", "Cycle iteration %d", i);
+        }
+            
     //-- Execute the final not complete cycle
-    OscillateServos(amplitude, offset, period, phase_diff, (float)steps - cycles);
+    // OscillateServos(amplitude, offset, period, phase_diff, (float)steps - cycles);
     vTaskDelay(pdMS_TO_TICKS(10));
 }
 
@@ -261,7 +263,7 @@ void Quad::SetRestState(bool state)
 //-- PREDETERMINED MOTION SEQUENCES -----------------------------//
 ///////////////////////////////////////////////////////////////////
 
-void Quad::Forward(float steps=3, int t=800)
+void Quad::Forward(float steps=3, int period=800)
 {
     int x_amp = 15;
     int z_amp = 15;
@@ -279,13 +281,14 @@ void Quad::Forward(float steps=3, int t=800)
              + hi,
              - hi
         };
-    double phase_diff[SERVO_COUNT] = {0, 0, 90, 90, 180, 180, 90, 90};
+    double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(90), DEG2RAD(90), 
+                                      DEG2RAD(180), DEG2RAD(180), DEG2RAD(90), DEG2RAD(90)};
 
     //-- Let's oscillate the servos!
-    Execute(A, O, t, phase_diff, steps);
+    Execute(A, O, period, phase_diff, steps);
 }
 
-void Quad::Backward(float steps=3, int t=800)
+void Quad::Backward(float steps=3, int period=800)
 {
     int x_amp = 15;
     int z_amp = 15;
@@ -303,10 +306,11 @@ void Quad::Backward(float steps=3, int t=800)
              + hi,
              - hi
         };
-    double phase_diff[SERVO_COUNT] = {180, 180, 90, 90, 0, 0, 90, 90};
+    double phase_diff[SERVO_COUNT] = {DEG2RAD(180), DEG2RAD(180), DEG2RAD(90), DEG2RAD(90), 
+                                      0, 0, DEG2RAD(90), DEG2RAD(90)};
 
     //-- Let's oscillate the servos!
-    Execute(A, O, t, phase_diff, steps);
+    Execute(A, O, period, phase_diff, steps);
 }
 
 void Quad::EnableServoLimit(int diff_limit)
